@@ -81,7 +81,7 @@ impl Vec3 {
         let cos_theta:f64 = (-(uv.clone()))*n.clone();
         let perp:Vec3 = (uv.clone() + n.clone()*cos_theta)*rate;
         let parall:Vec3 = n.clone()*(-((1.0-perp.squared_length()).abs()).sqrt());
-        return (perp.clone() + parall.clone());
+        perp.clone() + parall.clone()
     }
 }
 
@@ -218,7 +218,11 @@ impl Neg for Vec3 {
     type Output = Self;
 
     fn neg(self) -> Self {
-        self * -1.0
+        Self {
+            x: -(self.x),
+            y: -(self.y),
+            z: -(self.z),
+        }
     }
 }
 

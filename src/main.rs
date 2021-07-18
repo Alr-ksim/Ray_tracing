@@ -1,4 +1,7 @@
 #![allow(warnings, unused)]
+#[allow(clippy::float_cmp)]
+use image::{ImageBuffer, RgbImage};
+use indicatif::ProgressBar;
 
 pub mod vec3;
 pub mod ray;
@@ -53,13 +56,16 @@ fn main() {
     const AS_RATIO:f64 = 3.0 / 2.0;
     const I_WID:i32 = 1200;
     const I_HIT:i32 = (I_WID as f64 / AS_RATIO) as i32;
-    const SAMPLES:i32 = 20; //500
-    const MAXDEEP:i32 = 10; //50
+    const SAMPLES:i32 = 700; //500
+    const MAXDEEP:i32 = 70; //50
+
+    let mut img: RgbImage = ImageBuffer::new(I_WID as u32, I_HIT as u32);
+    let bar = ProgressBar::new(I_HIT as u64);
 
     let mut list:Hitlist = Hitlist::new();
-    let mat_g:Lamber = Lamber::new(Color::new(0.5, 0.5, 0.5));
-    let sph_g:Sphere <Lamber> = Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, mat_g.clone());
-
+    let mat_g:Lamber = Lamber::new(Color::new(0.5, 0.5, 0.5)); // 0.5
+    let arc_g = Arc::new(Sphere::new(Vec3::new(0.0, -1000.0, 0.0), 1000.0, mat_g.clone()));
+    list.add(arc_g);
 
     let mut a:i32 = -11;
     while a < 11 {
@@ -76,7 +82,7 @@ fn main() {
                     list.add(arc_s);
                 } else if chmat < 0.95 {
                     let lbc:Color = Color::randvr(0.5, 1.0);
-                    let fuzz:f64 = randf(0.0, 0.5);
+                    let fuzz:f64 = randf(0.0, 0.5); //0.0 -> 0.5
                     let mat:Metal = Metal::new(lbc, fuzz);
                     let arc_s = Arc::new(Sphere::new(ct.clone(), 0.2, mat));
                     list.add(arc_s);
@@ -124,9 +130,16 @@ fn main() {
                 color += ray_color(r, &list, MAXDEEP);
                 s += 1;
             }
+            let pixel = img.get_pixel_mut(i as u32, (I_HIT - j - 1) as u32);
+            let otc:Color = color::out_color(color.clone(), SAMPLES);
+            *pixel = image::Rgb([otc.x() as u8, otc.y() as u8, otc.z() as u8]);
             color::write_color(&mut file, color, SAMPLES);
             i += 1;
         }
+        bar.inc(1);
         j -= 1;
     }
+
+    img.save("output/test.png").unwrap();
+    bar.finish();
 }
