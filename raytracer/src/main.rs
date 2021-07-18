@@ -57,7 +57,7 @@ fn main() {
     const I_WID:i32 = 1200;
     const I_HIT:i32 = (I_WID as f64 / AS_RATIO) as i32;
     const SAMPLES:i32 = 700; //500
-    const MAXDEEP:i32 = 70; //50
+    const MAXDEEP:i32 = 80; //50
 
     let mut img: RgbImage = ImageBuffer::new(I_WID as u32, I_HIT as u32);
     let bar = ProgressBar::new(I_HIT as u64);
